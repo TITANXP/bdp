@@ -13,6 +13,7 @@
 
     <modules>
         <module>../bdp-metric</module>
+        <module>../bdp-master-server</module>
     </modules>
 
     <build>
