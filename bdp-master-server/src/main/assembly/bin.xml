@@ -28,12 +28,12 @@
         <fileSet>
             <directory>targer/classes/conf</directory>
             <outputDirectory>./conf</outputDirectory>
-            <inclues>
+            <includes>
                 <include>*.xml</include>
                 <include>*.sql</include>
                 <include>*.conf</include>
                 <include>*.properties</include>
-            </inclues>
+            </includes>
         </fileSet>
     </fileSets>
     <!--    用来定制工程依赖 jar 包的打包方式 -->

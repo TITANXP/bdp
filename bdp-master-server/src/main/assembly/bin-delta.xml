@@ -18,17 +18,17 @@
         <fileSet>
             <directory>targer/classes/conf</directory>
             <outputDirectory>./conf</outputDirectory>
-            <inclues>
+            <includes>
                 <include>*.xml</include>
                 <include>*.sql</include>
                 <include>*.conf</include>
                 <include>*.properties</include>
-            </inclues>
+            </includes>
         </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDitectory>./lib</outputDitectory>
+            <outputDirectory>./lib</outputDirectory>
             <includes>
                 <include>org.bdp:bdp-master-server</include>
             </includes>
