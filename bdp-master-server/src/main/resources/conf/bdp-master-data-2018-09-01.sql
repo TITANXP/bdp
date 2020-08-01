@@ -8,8 +8,8 @@ alter table bdp_master.app enable keys;
 
 alter table bdp_master.server disable keys;
 truncate bdp_master.server;
-insert into bdp_master.server (id, cpu_cores, hostname, memeory, app_id, creation_time, update_time) values (1, 16, 'svr1001', '64000', '1', '2018-09-01 00:00:00', '2018-09-01 00:00:00');
-insert into bdp_master.server (id, cpu_cores, hostname, memeory, app_id, creation_time, update_time) values (2, 16, 'svr1002', '64000', 1, '2018-09-01 00:00:00', '2018-09-01 00:00:00');
+insert into bdp_master.server (id, cpu_cores, hostname, memory, app_id, creation_time, update_time) values (1, 16, 'svr1001', '64000', '1', '2018-09-01 00:00:00', '2018-09-01 00:00:00');
+insert into bdp_master.server (id, cpu_cores, hostname, memory, app_id, creation_time, update_time) values (2, 16, 'svr1002', '64000', 1, '2018-09-01 00:00:00', '2018-09-01 00:00:00');
 alter table bdp_master.server enable keys;
 
 alter table bdp_master.metric_threshold disable keys;
