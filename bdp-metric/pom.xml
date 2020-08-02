@@ -34,6 +34,7 @@
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
+            <!-- 该插件主要用于项目maven编译打包时，跳过单元测试-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
