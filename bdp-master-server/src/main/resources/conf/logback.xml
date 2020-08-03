@@ -34,13 +34,13 @@
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%thread] [%logger] [%line] -- %msg%n</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${app.log.home}/${project.artifactId}.error.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <maxFileSize>128MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
     </appender>
-    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-        <fileNamePattern>${app.log.home}/${project.artifactId}.error.%d{yyyyMMdd}.%i.log</fileNamePattern>
-        <maxFileSize>128MB</maxFileSize>
-        <maxHistory>30</maxHistory>
-        <totalSizeCap>5GB</totalSizeCap>
-    </rollingPolicy>
 
     <!-- customized logger list -->
     <!-- 设置某一个包或具体的某一个类的日志打印级别-->
