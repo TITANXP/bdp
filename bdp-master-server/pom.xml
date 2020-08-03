@@ -122,6 +122,7 @@
         </filters>
 
         <resources>
+            <!--  将resources下的conf文件夹打包到target目录下，供打包成zip文件上传到服务器使用  -->
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -130,8 +131,19 @@
                     <!--<exclude>*.sql</exclude>-->
                 </excludes>
             </resource>
+            <!--  将resouces/conf下的文件打包到target/classes目录下,供idea运行项目使用  -->
+            <resource>
+                <directory>src/main/resources/conf</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>logback.xml</exclude>
+<!--                    <exclude>create-schema.sql</exclude>-->
+                </excludes>
+            </resource>
+            <!--  将deploy.bat打包到target目录下  -->
             <resource>
                 <directory>src/main/resources</directory>
+                <!-- 替换占位符${} -->
                 <filtering>true</filtering>
                 <includes>
                     <include>*.bat</include>
