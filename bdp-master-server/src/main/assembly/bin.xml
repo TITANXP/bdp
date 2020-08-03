@@ -18,7 +18,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>targe/classes/bin</directory>
+            <directory>target/classes/bin</directory>
             <outputDirectory>./bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
@@ -26,7 +26,7 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>targer/classes/conf</directory>
+            <directory>target/classes/conf</directory>
             <outputDirectory>./conf</outputDirectory>
             <includes>
                 <include>*.xml</include>
