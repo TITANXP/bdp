@@ -1,13 +1,12 @@
 package org.bdp.master.server.domain;
 
-import javassist.tools.rmi.AppletServer;
-import org.bdp.master.server.service.AppService;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * app的实体类
+ */
 @Entity
 @Table(name="app")
 public class App implements Serializable {

@@ -6,6 +6,7 @@ import java.util.Date;
 
 /**
  * 组件类-服务器告警阈值
+ * 一个Server的每种Metric（cpu.usage、mem.used)对应一个threshold，根据（server_id, metric_name）进行关联
  */
 @Embeddable
 //@Table(name="metric_threshold")

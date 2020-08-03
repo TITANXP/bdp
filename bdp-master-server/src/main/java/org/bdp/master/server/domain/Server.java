@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * 服务器实体类
+ * 服务器实体类（一个app对应多个server）
  */
 @Entity
 @Table(name = "server")
