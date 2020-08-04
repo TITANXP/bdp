@@ -45,7 +45,7 @@ public class ServerRedisRepositoryImpl implements ServerRedisRepository {
 
     //server:{Id}
     private String buildRecKey(Long id){
-        return new StringBuilder(SERVER_KEY_PATTERN).append(":").append(id).toString();
+        return new StringBuilder(SERVER_KEYSPACE).append(":").append(id).toString();
     }
 
     private String buildRecKey(Server server){
