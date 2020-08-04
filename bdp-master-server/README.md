@@ -30,11 +30,32 @@ deploy.bat -delta
 
 
 
-## 2. 原型设计
+## 2. 原型设计   
+### 介绍
   此项目为主数据管理系统，负责App、Server、MetricThreshold、MetricIndex、AlertIndex的增删改查。   
 
   bdp-master-server是一个Java Web应用，使用Spring Boot，存储层面对接一个MySQL数据库bdp_master及一个Redis，数据双写，对外提供Restful API。引入Redis是为流计算提供高性能的主数据读取能力。整个项目是一个典型的Java Web应用，架构上分为Controller、Service、Repository三层，各种实体类对应于各种主数据，使用Hibernate进行ORM处理   
+### Redis表
+Redis自身没有二级索引机制，主体数据都是根据id进行存储：
+- app:{id}
 
+- server:{Id}
+
+- metric_index:{id}
+
+- alert_index:{id}   
+
+如果想要根据其它属性查询，如name，就需要手动建立二级索引：
+
+- i_app:{appName}
+
+- i_server:{serverName}
+
+- i_metric_index:{metricName}
+
+- i_alert_index:{alertName}   
+
+以上二级索引表中存储了主体数据的key，根据name查询得到key后，再根据key查询即可得到主体数据。
 ## 3. 遇到的问题  
 - ###  Could not resolve placeholder 'spring.redis.host' in value "${spring.redis.host}" 
    这是因为找不到application.properties，可以将application.properties移动到resources文件夹下，或将resources/conf改为resources/config   
