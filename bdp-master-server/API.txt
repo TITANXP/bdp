@@ -1,0 +1,52 @@
+1. Server
+ 	GET /servers：获取所有的Server
+	GET /server/{id}：获取指定ID的Server
+	GET /server?hostname=SERVER_NAME：根据name查找Server
+	POST /server：新建一个Server
+	DELETE /server/{id}：删除指定ID的Server
+
+2. App
+ 	GET /apps：获取所有的App
+	GET /app/{id}：获取指定ID的App
+	GET /app?name=APP_NAME：根据name查找App
+	POST /app：新建一个App
+	DELETE /app/{id}：删除指定ID的App
+
+3. MetricIndex
+ 	GET /metricIndexes：获取所有的MetricIndex
+	GET /metricIndex/{id}：获取指定ID的MetricIndex
+	GET /metricIndex?name=METRIC_INDEX_NAME：根据name查找MetricIndex
+	POST /metricIndex：新建一个MetricIndex
+	DELETE /metricIndex/{id}：删除指定ID的MetricIndex
+
+4. AlertIndex
+ 	GET /alertIndexes：获取所有的AlertIndex
+	GET /alertIndex/{id}：获取指定ID的AlertIndex
+	GET /alertIndex?name=ALERT_INDEX_NAME：根据name查找AlertIndex
+	POST /alertIndex：新建一个AlertIndex
+	DELETE /alertIndex/{id}：删除指定ID的AlertIndex
+
+上述API中并没有MetricThreshold相关操作，MetricThreshold在Server中一起处理了。也就是说，对于某个MetricThreshold的使用都是先定位到某个具体的Server对象，在从Server对象中直接获取MetricThreshold。
+{
+    "id": 1,
+    "hostname": "svr1001",
+    "cpuCores": 16,
+    "memory": 64000,
+    "appId": 1,
+    "metricThresholds": {
+        "cpu.usage": {
+            "redThreshold": 90,
+            "amberThreshold": 80,
+            "creationTime": 1535760000000,
+            "updateTime": 1535760000000
+        },
+        "mem.used": {
+            "redThreshold": 5760,
+            "amberThreshold": 5120,
+            "creationTime": 1535760000000,
+            "updateTime": 1535760000000
+        }
+    },
+    "creationTime": 1535760000000,
+    "updateTime": 1535760000000
+}
