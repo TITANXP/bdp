@@ -20,9 +20,7 @@ if "%~1"=="-delta" (
 ) else (
     goto uploadBinZip
 )
-https://files.yande.re/image/f0bf9e57b840339e336b0129216d71ae/yande.re%20666238%20fukahire_sanba%20seifuku%20skirt_lift.jpg
-https://files.yande.re/image/b95a80b2cfdd5908fcbf02e046f3277b/yande.re%20666191%20dress%20skirt_lift%20wedding_dress%20zhongwu_chahui.jpg
-https://files.yande.re/image/f90dcfef72f8ec782bf45267aaeb20c8/yande.re%20667495%20immi%20seifuku.jpg
+
 :uploadBinZip
 @echo on
 :: 上传zip包到远程服务器
