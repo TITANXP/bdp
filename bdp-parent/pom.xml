@@ -14,6 +14,7 @@
     <modules>
         <module>../bdp-metric</module>
         <module>../bdp-master-server</module>
+        <module>../bdp-master-client</module>
     </modules>
 
     <build>
