@@ -42,6 +42,7 @@
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
         </dependency>
+        <!-- circe是一个Scala的Json解析库 -->
         <dependency>
             <groupId>io.circe</groupId>
             <artifactId>circe-core_${scala.tools.version}</artifactId>
@@ -73,7 +74,7 @@
 
         <resources>
             <resource>
-                <directory>src/main/resource</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -153,6 +154,5 @@
             </properties>
         </profile>
     </profiles>
-
 
 </project>
