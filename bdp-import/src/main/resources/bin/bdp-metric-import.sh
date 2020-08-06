@@ -59,7 +59,7 @@ importToTmp(){
   validateTime "$5"
   startTime=$(date -d "$4" +"%F %T")
   endTime=$(date -d "$5" +"%F %T")
-  sinkTablePath="$TMP_DATA_BASE_DIR/$sinkTable"
+  sinkTablePath="$SINK_DATA_BASE_DIR/$sinkTable"
   jobname="subject: $SUBJECT -- import [ $srcTable ] data from dataSource to tmp layer via sqoop"
 
   printHeading "${jobname}"
