@@ -1,4 +1,4 @@
-# 导入数据 app (tmp -> src)
+-- 导入数据 app (tmp -> src)
 INSERT OVERWRITE TABLE src.bdp_master_app PARTITION(update_date)
 SELECT
     id,

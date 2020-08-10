@@ -1,4 +1,4 @@
-# 创建表 server (src -> dwh)
+-- 创建表 server (src -> dwh)
 
 DROP TABLE IF EXISTS dwh.bdp_master_server;
 

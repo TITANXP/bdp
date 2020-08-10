@@ -1,4 +1,4 @@
-# 创建表 app (tmp->src)
+-- 创建表 app (tmp->src)
 
 DROP TABLE IF EXISTS src.bdp_master_app;
 

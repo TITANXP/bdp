@@ -1,4 +1,4 @@
-# 导入数据 server (tmp -> src)
+-- 导入数据 server (tmp -> src)
 INSERT OVERWRITE TABLE src.bdp_master_server PARTITION(update_date)
 SELECT
     id,

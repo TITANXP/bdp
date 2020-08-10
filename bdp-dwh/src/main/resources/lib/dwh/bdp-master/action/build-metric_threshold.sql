@@ -1,4 +1,4 @@
-# 导入数据 metric_threshold (src -> dwh)
+-- 导入数据 metric_threshold (src -> dwh)
 
 SET spark.sql.hive.converMetastoreParquet=false;
 SET spark.sql.parser.quotedRegexColumnNames=true;

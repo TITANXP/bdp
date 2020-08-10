@@ -1,4 +1,4 @@
-# 创建表 metric_index (src -> dwh)
+-- 创建表 metric_index (src -> dwh)
 
 DROP TABLE IF EXISTS dwh.bdp_master_metric_index;
 

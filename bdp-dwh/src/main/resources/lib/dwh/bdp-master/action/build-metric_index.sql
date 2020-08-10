@@ -1,4 +1,4 @@
-# 导入数据 metric_index (src -> dwh)
+-- 导入数据 metric_index (src -> dwh)
 
 SET spark.sql.hive.convertMetastoreParquet=false;
 SET spark.sql.parser.quotedRegexColumnNames=true;

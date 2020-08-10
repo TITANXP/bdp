@@ -1,4 +1,4 @@
-# 导入数据 metric (src->dwh)
+-- 导入数据 metric (src->dwh)
 INSERT OVERWRITE TABLE dwh.bdp_metric_metric PARTITION(creation_date)
 SELECT
     id,

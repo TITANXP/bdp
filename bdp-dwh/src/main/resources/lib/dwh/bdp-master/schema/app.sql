@@ -1,4 +1,4 @@
-# 创建表 app (src -> dwh)
+-- 创建表 app (src -> dwh)
 
 DROP TABLE IF EXISTS dwh.bdp_master_app;
 

@@ -1,4 +1,4 @@
-# 导入数据 metric_threshold (tmp -> src)
+-- 导入数据 metric_threshold (tmp -> src)
 INSERT INTO TABLE src.bdp_master_metric_threshold PARTITION(update_date)
 SELECT
     server_id,

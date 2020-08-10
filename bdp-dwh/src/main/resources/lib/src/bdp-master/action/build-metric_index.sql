@@ -1,4 +1,4 @@
-# 导入数据 metric_index (tmp -> src)
+-- 导入数据 metric_index (tmp -> src)
 INSERT OVERWRITE TABLE src.bdp_master_metric_index PARTITION(update_date)
 SELECT
     id,

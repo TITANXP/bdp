@@ -1,4 +1,4 @@
-# 创建表 server (tmp->src)
+-- 创建表 server (tmp->src)
 
 DROP TABLE IF EXISTS src.bdp_master_server;
 
@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS src.bdp_master_server(
     update_time TIMESTAMP,
     imported_time TIMESTAMP
 )
-PARTITIONED BY (update_time STRING)
+PARTITIONED BY (update_date STRING)
 STORED AS parquet;

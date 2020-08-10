@@ -1,4 +1,4 @@
-# 导入数据 metric (tmp -> src)
+-- 导入数据 metric (tmp -> src)
 INSERT OVERWRITE src.bdp_metric_metric PARTITION(creation_date)
 select
     id,

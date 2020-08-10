@@ -1,4 +1,4 @@
-# 创建表 metric (tmp->src)
+-- 创建表 metric (tmp->src)
 
 DROP TABLE IF EXISTS src.bdp_metric_metric;
 
