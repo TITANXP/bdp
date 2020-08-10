@@ -2,7 +2,7 @@
 # bdp-metric (MySQL -> tmp -> src)
 
 export BDP_DWH_HOME="$(cd "`dirname $(readlink -nf "$0")`"/..; pwd -P)"
-export SRC_BDP_METRIC_HOME="$BDP_DWH_HOME/lib/src/bdp_metric"
+export SRC_BDP_METRIC_HOME="$BDP_DWH_HOME/lib/src/bdp-metric"
 export SUBJECT="src :: bdp-metric"
 export UNDER_SUBJECT="tmp :: bdp-metric"
 

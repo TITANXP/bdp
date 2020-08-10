@@ -2,12 +2,12 @@
 # bdp-metric (src -> dwh)
 
 export BDP_DWH_HOME="$(cd "`dirname $(readlink -nf "$0")`"/..; pwd -P)"
-export DWH_BDP_MASTER_HOME="$BDP_DWH_HOME/lib/dwh/bdp-metric"
+export DWH_BDP_METRIC_HOME="$BDP_DWH_HOME/lib/dwh/bdp-metric"
 export SUBJECT="dwh :: bdp-metric"
 export UNDER_LAYER_SUBJECT="src :: bdp-metric"
 
-source "BDP_DWH_HOME/bin/util.sh"
-source "DWH_BDP_MASTER_HOME/bin/spark-actions.sh"
+source "$BDP_DWH_HOME/bin/util.sh"
+source "$DWH_BDP_METRIC_HOME/bin/spark-actions.sh"
 
 # ------------------------------------------------   Common Methods   ------------------------------------------------ #
 

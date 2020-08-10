@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# bdp-master (src -> dwh)
 
 export BDP_DWH_HOME="$(cd "`dirname $(readlink -nf "$0")`"/..; pwd -P)"
 export DWH_BDP_MASTER_HOME="$BDP_DWH_HOME/lib/dwh/bdp-master"
