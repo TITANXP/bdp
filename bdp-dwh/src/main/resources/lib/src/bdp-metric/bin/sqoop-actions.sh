@@ -11,7 +11,7 @@ createToTmp(){
   printHeading "job name : jobname"
 
   sqoop create-hive-table \
-  -Dmapred.job.name="$jobname"
+  -Dmapred.job.name="$jobname" \
   --connect '${bdp.metric.jdbc.url}' \
   --username '${bdp.metric.jdbc.user}' \
   --password '${bdp.metric.jdbc.password}' \
@@ -26,7 +26,7 @@ buildToTmp(){
   sinkTable="$2"
   splitColumn="$3"
   validateTime "$4"
-  validataTIme "$5"
+  validateTIme "$5"
 
   jobName="subject: $SUBJECT -- build [ $srcTable ] data from data source to tmp layer via sqoop"
 
@@ -38,7 +38,7 @@ buildToTmp(){
   sinkTablePath="$TMP_DATA_BASE_DIR/$sinkTable/"
 
   sqoop import \
-  -Dmapred.job.name="${jobname}"
+  -Dmapred.job.name="${jobname}" \
   --connect '${bdp.metric.jdbc.url}' \
   --username '${bdp.metric.jdbc.password}' \
   --password '${bdp.metric.jdbc.password}' \
@@ -49,7 +49,7 @@ buildToTmp(){
   --hive-overwrite \
   --hive-table "$sinkTable" \
   --target-dir "$sinkTablePath" \
-  --out-dir "/tmp" \
+  --outdir "/tmp" \
   --delete-target-dir
 }
 

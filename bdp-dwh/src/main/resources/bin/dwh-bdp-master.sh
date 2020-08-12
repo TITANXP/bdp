@@ -70,8 +70,8 @@ case $1 in
     createApp
   ;;
   (build-app)
-    shift "$@"
-    buildApp
+    shift
+    buildApp "$@"
   ;;
   (create-server)
     createServer
