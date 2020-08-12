@@ -5,10 +5,11 @@ SELECT
     name,
     hostname,
     value,
-    creation_time,
+    CAST(`timestamp` AS TIMESTAMP),
     imported_time,
-    CAST(CAST(`timestamp` AS DATE) AS STRING) AS creation_date
+    -- CAST(CAST(`timestamp` AS DATE) AS STRING) AS creation_date
+    creation_date
 FROM
-    dwh.bdp_metric_metric
+    src.bdp_metric_metric
 WHERE
     creation_date >= '@startDate@' and creation_date < '@endDate@';

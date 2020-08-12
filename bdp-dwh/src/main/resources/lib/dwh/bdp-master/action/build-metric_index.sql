@@ -5,7 +5,8 @@ SET spark.sql.parser.quotedRegexColumnNames=true;
 
 INSERT OVERWRITE TABLE dwh.bdp_master_metric_index
 SELECT
-    `(row_num|oc)?+.+`
+    -- `(row_num|oc)?+.+`
+    id, name, description, category, creation_time, update_time, imported_time
 FROM(
     SELECT
         *,
@@ -20,11 +21,12 @@ FROM(
             dwh.bdp_master_metric_index
         UNION ALL
         SELECT
-            `(update_date)?+.+`, 1 AS oc
+            -- `(update_date)?+.+`, 1 AS oc
+            id, name, description, category, creation_time, update_time, imported_time, 1 AS oc
         FROM
             src.bdp_master_metric_index
         WHERE
-            update_date >= '@startDate@' AND update_date <= '@endDate@'
+            update_date >= '@startDate@' AND update_date < '@endDate@'
     )a
-)
+) b
 WHERE row_num = 1;

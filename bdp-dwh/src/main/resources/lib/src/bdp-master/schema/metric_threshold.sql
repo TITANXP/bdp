@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS src.bdp_master_metric_threshold;
 
 CREATE TABLE IF NOT EXISTS src.bdp_master_metric_threshold(
     server_id BIGINT,
-    metric_mame STRING,
+    metric_name STRING,
     amber_threshold INT,
     red_threshold INT,
     creation_time TIMESTAMP,

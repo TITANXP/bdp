@@ -2,13 +2,14 @@
 
 -- 便于直接将select的结果覆盖回dwh.bdp_master_server,
 -- 因为select语句选择的一部分结果集来自dwh.bdp_master_server,如果直接覆盖回dwh.bdp_master_server,在spark-sql中是不允许的
-SET spark.sql.hive.converMetastoreParquet=false;
+SET spark.sql.hive.convertMetastoreParquet=false;
 -- 开启后可以使用正则选择字段
 SET spark.sql.parser.quotedRegexColumnNames=true;
 
 INSERT OVERWRITE TABLE dwh.bdp_master_app
 SELECT
-    `(row_num|oc)?+.+` -- 除row_num和oc外的所有字段
+    -- `(row_num|oc)?+.+` -- 除row_num和oc外的所有字段
+    id, name, description, version, creation_time, update_time, imported_time
 FROM(
     SELECT
         *,
@@ -24,13 +25,14 @@ FROM(
             dwh.bdp_master_app
         UNION ALL
         SELECT
-            `(update_date)?+.+`, 1 AS oc -- 除update_date外的所有字段,和oc
+            -- `(update_date)?+.+`, 1 AS oc -- 除update_date外的所有字段,和oc
+            id, name, description, version, creation_time, update_time, imported_time, 1 AS oc
         FROM
             src.bdp_master_app
         WHERE
-            update_date >= '@startDate@' AND update_date <= '@endDate@'
+            update_date >= '@startDate@' AND update_date < '@endDate@'
     ) a
-)
+) b
 WHERE row_num = 1;
 
 -- DWH层的全量数据oc为0，SRC层增量数据oc为1，因为如果出现数据重复导入的情况，为了避免数据筛选的不确定性，我们永远让SRC层的增量数据拥有更高的被选择权。
