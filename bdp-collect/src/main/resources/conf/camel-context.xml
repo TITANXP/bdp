@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!--  加载配置文件  -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:bdp-collect.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 配置数据库连接池 -->
+    <bean name="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="driverClassName" value="${bdp.metric.jdbc.driverClassName}" />
+        <property name="jdbcUrl" value="${bdp.metric.jdbc.url}"/>
+        <property name="username" value="${bdp.metric.jdbc.username}"/>
+        <property name="password" value="${bdp.metric.jdbc.password}"/>
+    </bean>
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig"/>
+    </bean>
+
+    <bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="kafka" class="org.apache.camel.component.kafka.KafkaComponent">
+        <property name="brokers" value="${kafka.brokers}"/>
+        <!--<property name="keySerializerClass" value="class org.apache.kafka.common.serialization.ByteArrayDeserializer"/>-->
+    </bean>
+    <!-- 用来转换时间格式 -->
+    <bean id="dateFormatter" class="java.text.SimpleDateFormat">
+        <constructor-arg name="pattern" value="yyyy-MM-dd HH:mm:ss"/>
+    </bean>
+
+    <!-- 阻塞队列 -->
+    <bean id="alertDateParamQueue" class="java.util.concurrent.LinkedBlockingQueue" destroy-method="clear"/>
+    <bean id="memWave1DateParamQueue" class="java.util.concurrent.LinkedBlockingQueue" destroy-method="clear"/>
+    <bean id="memWave2DateParamQueue" class="java.util.concurrent.LinkedBlockingQueue" destroy-method="clear"/>
+    <!-- 用来向前偏移时间的processor -->
+    <bean id="dateShiftProcessor" class="org.bdp.collect.processors.DateShiftProcessor"/>
+
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
+        <propertyPlaceholder id="placeholder" location="classpath:bdp-collect.properties"/>
+
+        <!-- 收集cpu.usage数据 -->
+        <route id="cpuCollectingJob">
+            <!-- 由定时器cpuCollectingTimer触发，5s一次 -->
+            <from uri="timer:cpuCollectingTimer?period={{job.cpu.period}}"/>
+
+            <!-- 把timer生成的时间戳转换格式 -->
+            <to uri="bean:dateFormatter?method=format(${header.firedTime})"/>
+
+            <log message="Job name: cpuCollectingJob, Start Time: ${in.body}"/>
+
+            <!-- 将dataFormatter输出的格式化后的时间写到消息的Header里，
+                 因为dataFormatter的返回结果会被Camel写到消息的body里，下游的SQL组件需要这个时间参数去查询数据库，但是SQL组件只会按照以下两种方式从消息里查找参数：
+                    - 如果消息的body是一个java.util.Map,则Camel会试图从这个Map中查找；
+                    - 从消息的Header里查找
+                  为了使SQL组件能够准确地接收从dateFormatter传来的时间戳，所以设置到了Header里  -->
+            <setHeader headerName="timestamp">
+                <simple>${in.body}</simple>
+            </setHeader>
+
+            <!-- 查询过去5s的数据 -->
+            <to uri="sql:{{job.cpu.sql}}"/>
+
+            <log message="SQL Returned Results: ${in.body}"/>
+
+            <!-- SQL组件的查询结果是List<Map<String,Object>>, 需要对这个数据结构进行整理，再发送给kafka
+                整理的第一项工作就是将消息数组切分成单一的消息，使用split标记即可实现 -->
+            <split>
+                <!-- 把消息体中单一的cpu.usage记录取出，交给marshal进行JSON解析 -->
+                <simple>${in.body}</simple>
+
+                <log message="Split Message: ${in.body}"/>
+                <marshal>
+                    <json library="Jackson"/>
+                </marshal>
+
+                <!-- 正常情况下，可以直接将这个JSON推送给kafka，但是后面流处理环节需要对cpu.usage和mem.used进行不同的计算，
+                    所以需要标记是哪种metric
+                    利用kafka消息的key来指明一个metric的类型，同时要考虑到kafka的消息是按照key进行散列的，所以需要保证消息在kafka上均匀分布，
+                    一个简单的做法是生成一个随机数（小于100即可）后缀，同时在前缀和后缀之间加上分隔符|，便于后续流计算解析 -->
+                <setHeader headerName="kafka.KEY">
+                    <simple>{{kafka.prefix.cpu.usage}}|${random(100)}</simple>
+                </setHeader>
+
+                <to uri="kafka:{{kafka.topic.cpuUsage}}"/>
+            </split>
+
+        </route>
+
+        <!-- 收集alert数据 -->
+        <!-- 应对采集作业超时的情况 -->
+        <route id="alertSchedulingJob">
+            <from uri="timer:alertSchedulingTimer?period={{job.alert.period}}&amp;delay=6s"/>
+            <to uri="bean:dateFormatter?method=format(${header.firedTime})"/>
+            <log message="Job Name: alertScheduleJob, Schedule Time: ${in.body}"/>
+            <!-- 将定时器生成的时间参数放入阻塞队列 -->
+            <to uri="bean:alertDateParamQueue?method=put(${in.body})"/>
+        </route>
+        <route id="alertExcutingJob">
+            <from uri="timer:alertExecutingTimer?delay=-1"/>
+            <!-- 从BlockingQueue队头取出时间参数 -->
+            <to uri="bean:alertDateParamQueue?method=take()"/>
+            <log message="Job Name: alertExecutingJob, Executing Time: ${in.body}"/>
+            <setHeader headerName="timestamp">
+                <simple>${in.body}</simple>
+            </setHeader>
+            <!-- 添加10s内的随机延时，用来模拟后面的SQL组件在目标数据库上响应延时的场景
+                注意：这时为了模拟而添加的，实际项目中没有理由这样做 -->
+            <delay>
+                <simple>${random(10000)}</simple>
+            </delay>
+
+            <!-- 组装SQL并执行 -->
+            <to uri="sql:{{job.alert.sql}}"/>
+            <split>
+                <simple>${body}</simple>
+                <marshal>
+                    <json library="Jackson" />
+                </marshal>
+                <setHeader headerName="kafka.KEY">
+                    <simple>{{kafka.prefix.alert}}|${random(100)}</simple>
+                </setHeader>
+                <to uri="kafka:{{kafka.topic.alert}}"/>
+            </split>
+        </route>
+
+        <!-- 收集mem.used数据 -->
+        <!-- 应对数据延迟就绪 和 采集作业超时的情况 -->
+        <!-- 波次1 -->
+        <route id="memWave1SchedulingJob">
+            <from uri="timer:memWave1SchedulingTimer?period={{job.mem.wave1.period}}&amp;delay=2s"/>
+            <to uri="bean:dateFormatter?method=format(${header.firedTime})"/>
+            <log message="Job Name: memWave1SchedulingJob, Scheduled Time: ${in.body}"/>
+            <to uri="bean:memWave1DateParamQueue?method=put(${in.body})"/>
+        </route>
+        <route id="memWave1ExcutingJob">
+            <from uri="timer:memExcutingTimer?delay=-1"/>
+            <to uri="bean:memWave1DateParamQueue?method=take()"/>
+            <log message="Job Name: memWave1ExecutingJob, Executing Time: ${in.body}"/>
+            <setHeader headerName="timestamp">
+                <simple>${in.body}</simple>
+            </setHeader>
+            <to uri="sql:{{job.mem.sql}}"/>
+            <split>
+                <simple>${body}</simple>
+                <marshal>
+                    <json library="Jackson"/>
+                </marshal>
+                <setHeader headerName="kafka.KEY">
+                    <simple>{{kafka.prefix.mem.used}}|${random(100)}</simple>
+                </setHeader>
+                <to uri="kafka:{{kafka.topic.memUsed}}"/>
+            </split>
+        </route>
+        <!-- 波次2 -->
+        <route id="memWave2SchedulingJob">
+            <from uri="timer:memWave2SchedulingTimer?period={{job.mem.wave2.period}}&amp;delay=4s"/>
+            <setHeader headerName="offset">
+                <simple>{{job.mem.wave2.offset}}</simple>
+            </setHeader>
+            <!-- 将时间向前偏移job.mem.wave2.offset秒 -->
+            <process ref="dateShiftProcessor"/>
+            <to uri="bean:dateFormatter?method=format(${header.shiftedTime})"/>
+            <log message="Job Name: memWave2SchedulingJob, Scheduled Time: ${in.body}"/>
+            <to uri="bean:memWave2DateParamQueue?method=put(${in.body})"/>
+        </route>
+        <route id="memWave2ExcutingJob">
+            <from uri="timer:memExcutingTimer?delay=-1"/>
+            <to uri="bean:memWave2DateParamQueue?method=take()"/>
+            <log message="Job Name: memWave2ExecutingJob, Executing Time: ${in.body}"/>
+            <setHeader headerName="timestamp">
+                <simple>${in.body}</simple>
+            </setHeader>
+            <to uri="sql:{{job.mem.sql}}"/>
+            <split>
+                <simple>${body}</simple>
+                <marshal>
+                    <json library="Jackson"/>
+                </marshal>
+                <setHeader headerName="kafka.KEY">
+                    <simple>{{kafka.prefix.mem.used}}|${random(100)}</simple>
+                </setHeader>
+                <to uri="kafka:{{kafka.topic.memUsed}}"/>
+            </split>
+        </route>
+
+    </camelContext>
+</beans>
