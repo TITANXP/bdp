@@ -17,6 +17,7 @@
         <module>../bdp-master-client</module>
         <module>../bdp-import</module>
         <module>../bdp-dwh</module>
+        <module>../bdp-collect</module>
     </modules>
 
     <build>
