@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0</version>
 
-    <name>dbp-parent</name>
+    <name>bdp-parent</name>
 
     <modules>
         <module>../bdp-metric</module>
@@ -18,6 +18,7 @@
         <module>../bdp-import</module>
         <module>../bdp-dwh</module>
         <module>../bdp-collect</module>
+        <module>../bdp-stream</module>
     </modules>
 
     <build>
