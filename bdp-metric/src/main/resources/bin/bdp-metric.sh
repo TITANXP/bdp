@@ -208,7 +208,7 @@ genOnlineAlert(){
 
 	# 警告存在的时间在[5,ALERT_MAX_LIVE_SECONDS)
 	sleep $(($RANDOM % ($ALERT_MAX_LIVE_SECONDS-5) + 5))
-	timestamp=$(date +'%F %T')
+#	timestamp=$(date +'%F %T')
 	
 	sed "s/@timestamp@/$timestamp/g" "$BDP_METRIC_HOME/sql/$template" | \
 	sed "s/@status@/CLOSED/g" > "$BDP_METRIC_HOME/sql/.$template"
