@@ -30,7 +30,7 @@ case class AlertRegistry () extends LazyLogging {
         val oldValue = registry.getOrElse(key, (false, false))
         val newValue = status match {
           case "OPEN" => (true, oldValue._2)
-          case "CLOSE" => (oldValue._1, true)
+          case "CLOSED" => (oldValue._1, true)
         }
         // 更新map中对应key的值
         registry.update(key, newValue)
