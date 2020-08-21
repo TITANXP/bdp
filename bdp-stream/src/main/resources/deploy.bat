@@ -9,6 +9,7 @@ set home=${app.home}
 set buildDir=${project.build.directory}
 set binZip=${project.build.finalName}-bin.zip
 set deltaBinZip=${project.build.finalName}-bin-delta.zip
+set logHome=${app.log.home}
 
 echo.
 echo ***************************************************************************************
@@ -27,6 +28,7 @@ PSCP -l %user% -pw %password% -P 22 "%buildDir%\\%binZip%" "%host%:/tmp/"
 PLINK -l %user% -pw %password% %host% -t "if [ ! -d '%baseDir%' ];then mkdir %baseDir%;fi"
 PLINK -l %user% -pw %password% %host% -t "if [ -d '%home%' ];then rm -rf %home%;fi"
 PLINK -l %user% -pw %password% %host% -t "unzip -o /tmp/%binZip% -d %baseDir%/"
+PLINK -l %user% -pw %password% %host% -t "mkdir  %logHome%/"
 @echo off
 goto startup
 
