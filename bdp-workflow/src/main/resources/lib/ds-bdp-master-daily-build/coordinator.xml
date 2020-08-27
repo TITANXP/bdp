@@ -1,0 +1,30 @@
+<coordinator-app name="ds-bdp-master-daily-build" frequency="${coord:days(1)}"
+                 start="${startTime}" end="${endTime}" timezone="Asia/Shanghai"
+                 xmlns="uri:oozie:coordinator:0.1">
+    <action>
+        <workflow>
+            <!-- 指明工作流文件的位置，以便coordinator能找到并加载它。-->
+            <app-path>${app.hdfs.home}/lib/ds-bdp-master-daily-build/workflow.xml</app-path>
+            <!-- coordinator生成参数，并传递给workflow -->
+            <configuration>
+                <property>
+                    <name>START_TIME</name>
+                    <!-- 以触发时刻为基准，向前偏移一天 -->
+                    <!-- 例如，作业在2018-09-02T00:00+0800触发，解析出的START_TIME的值将是2018-09-01T00:00+0800 -->
+                    <value>${coord:dateOffset(coord:nominalTime(), -1, 'DAY')}</value>
+                </property>
+                <property>
+                    <name>END_TIME</name>
+                    <!-- 直接取触发时间，无偏移 -->
+                    <value>${coord:dateOffset(coord:nominalTime(), 0, 'DAY')}</value>
+                </property>
+                <property>
+                    <name>DATE_FLAG</name>
+                    <!-- 和START_TIME保持一致 -->
+                    <!-- 但是考虑到这个时间值会作为文件夹存在于HDFS上，为了避免出现一些无法处理的特殊时间字符，所以对格式进行了处理 -->
+                    <value>${coord:formatTime(coord:dateOffset(coord:nominalTime(), -1, 'DAY'), "yyyy-MM-dd")}</value>
+                </property>
+            </configuration>
+        </workflow>
+    </action>
+</coordinator-app>

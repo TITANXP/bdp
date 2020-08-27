@@ -1,0 +1,51 @@
+<workflow-app name="build-ds-bdp-master :: app :: data source -> tmp -> src -> dwh" xmlns="uri:oozie:workflow:0.5">
+
+<!-- 导入bdp_master.app 的 tmp -> src -> dwh 层 数据 -->
+
+    <start to="build-src-app"/>
+
+    <!-- app: tmp -> src -->
+    <action name="build-src-app">
+        <ssh xmlns="uri:oozie:ssh-action:0.1">
+            <host>${bdp-dwh.ssh.host}</host>
+            <command>${bdp-dwh.app.bin.home}/src-bdp-master.sh</command>
+            <args>build-app</args>
+            <args>${START_TIME}</args>
+            <args>${END_TIME}</args>
+            <capture-output/>
+        </ssh>
+        <ok to="build-dwh-app"/>
+        <error to="kill"/>
+    </action>
+
+    <!-- app: dwh -->
+    <action name="build-dwh-app">
+        <ssh xmlns="uri:oozie:ssh-action:0.1">
+            <host>${bdp-dwh.ssh.host}</host>
+            <command>${bdp-dwh.app.bin.home}/dwh-bdp-master.sh</command>
+            <args>build-app</args>
+            <args>${START_TIME}</args>
+            <args>${END_TIME}</args>
+            <capture-output/>
+        </ssh>
+        <ok to="flag-done"/>
+        <error to="kill"/>
+    </action>
+
+    <!-- 调用hdfs的文件操作命令 touchz，创建一个名为_SUCCESS的空文件 -->
+    <action name="flag-done">
+        <fs>
+            <!-- DATE_FLAG是执行作业当天的日期, 所以每天的作业都会有唯一的FLAG -->
+            <touchz path='hdfs://${cluster.namenode}${app.hdfs.user.home}/done-flags/${DATE_FLAG}/ds-bdp-master/app/_SUCCESS'/>
+        </fs>
+        <ok to="end"/>
+        <error to="kill"/>
+    </action>
+
+    <kill name="kill">
+        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+    <end name="end"/>
+
+</workflow-app>
