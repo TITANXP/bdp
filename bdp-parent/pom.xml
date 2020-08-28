@@ -19,6 +19,7 @@
         <module>../bdp-dwh</module>
         <module>../bdp-collect</module>
         <module>../bdp-stream</module>
+        <module>../bdp-workflow</module>
     </modules>
 
     <build>

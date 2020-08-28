@@ -240,7 +240,6 @@ truncateAll(){
     TRUNCATE TABLE bdp_master_server;
     TRUNCATE TABLE bdp_master_metric_index;
     TRUNCATE TABLE bdp_master_metric_threshold;
-    TRUNCATE TABLE dim_hour;
     USE src;
     TRUNCATE TABLE bdp_metric_metric;
     TRUNCATE TABLE bdp_master_app;

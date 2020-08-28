@@ -674,3 +674,20 @@ SELECT CAST('2020-01-01' AS TIMESTAMP);
 select from_unixtime(unix_timestamp('2020-01-01', 'yyyy-mm-dd'));
 ```
 
+- ### 使用sqoop创建表时 报错：  
+
+```
+java.lang.RuntimeException: Could not load db driver class: com.mysql.jdbc.Driver
+```
+
+**解决方法** ： 将mysql jar包复制到/var/lib/sqoop/下  
+
+- ### 使用Sqoop从MySQL中向Hive导入数据后，时间字段的值不一样  
+
+  https://blog.csdn.net/weixin_42348946/article/details/104414370
+
+**解决方法**： 在Sqoop连接mysql的url中指定时区  
+
+```shell
+jdbc:mysql://192.168.170.1/bdp_metric?useSSL=false&useUnicode=true&characterEncoding=utf-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL
+```
