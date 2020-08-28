@@ -1,4 +1,4 @@
-# bdp-collect  
+# bdp-stream
 
 ## 1 部署流程  
 
@@ -8,15 +8,11 @@
 build.bat standalone | cluster  
 ```
 
-
-
 ### 部署项目   
 
 ```shell
 deploy.bat  
 ```
-
-
 
 ###  启动Hadoop  
 
@@ -25,15 +21,11 @@ start-dfs.sh
 start-yarn.sh     
 ```
 
-
-
 ### 启动saprk  
 
 ```shell
 sbin/start-all.sh  
 ```
-
-
 
 ### 启动zookeeper  
 
@@ -41,23 +33,17 @@ sbin/start-all.sh
 bin/zkServer.sh start  
 ```
 
-
-
 ### 启动kafka  
 
 ```shell
 kafka-server-start.sh -daemon ../config/server.properties  
 ```
 
-
-
 ### 启动HBase  
 
 ```shell
 bin/start-hbase.sh   
 ```
-
-
 
 ### 启动redis  
 
@@ -77,23 +63,17 @@ bdp-master-server.sh start
 bdp-metric.sh start  
 ```
 
-
-
 ### 启动bdp-collect项目  
 
 ```shell
 bdp-collect.sh start
 ```
 
-  
-
 ### 启动bdp-stream项目   
 
 ```shell
 bdp-stream.sh start  
 ```
-
-
 
 
 
@@ -492,7 +472,7 @@ MetricService的evaluate方法
 
    以mapGroupsWithState为例，在它多个重载版本里，下面这个最常用：  
 
-   
+
 
 ```scala
 mapGroupsWithState[S: Encoder, U: Encoder] (timeoutConf: GroupStateTimeout)(func: (K, Iterator[V], GroupState[S] => U)) : Dataset[U]  
@@ -530,21 +510,23 @@ persist的操作与Metric的一致
 evaluate
 
 ```scala
-def evaluate(implicit sparkSession: SparkSession): Unit = {
-  import sparkSession.implicits._
-  sparkSession.sparkContext.setLocalProperty("spark.scheduler.pool", s"pool_evaluate_alert")
-  sparkSession
-    .sql(s"SELECT * FROM alert").as[Alert]
-    .withWatermark("timestamp", ALERT_WATERMARK)
-    //对Alert按服务器进行分组，为面向服务器的状态评估做准备
-    .groupByKey(alert => AlertService.getServerId(alert.hostname))
-    .mapGroupsWithState(GroupStateTimeout.NoTimeout)(AlertService.updateAlertGroupState)
-    .writeStream
-    .outputMode("update")
-    .foreach(ServerStateWriter())
-    .queryName(s"evaluate_alert")
-    .start
-}
+  def evaluate(implicit sparkSession: SparkSession): Unit = {
+    logger.info("alert evaluate")
+    import sparkSession.implicits._
+    implicit val stateEncoder = org.apache.spark.sql.Encoders.kryo[AlertRegistry]
+    sparkSession.sparkContext.setLocalProperty("spark.scheduler.pool", s"pool_evaluate_alert")
+    sparkSession
+      .sql(s"SELECT * FROM alert").as[Alert]
+      .withWatermark("timestamp", ALERT_WATERMARK)
+      //对Alert按服务器进行分组，为面向服务器的状态评估做准备
+      .groupByKey(alert => AlertService.getServerId(alert.hostname))
+      .mapGroupsWithState(GroupStateTimeout.NoTimeout)(AlertService.updateAlertGroupState)
+      .writeStream
+      .outputMode("update")
+      .foreach(ServerStateWriter())
+      .queryName(s"evaluate_alert")
+      .start
+  }
 ```
 
    Alert的Watermark达到了24h（86400s），这是因为Alert的timestmap标识的是incident发生的时间，对于一个发生在凌晨1点的incident，即使它在下午5点被修复，对应的CLOSED的Alert消息的timestamp依旧是凌晨1点。为了确保不丢失数据，所以要设置一个足够长的Watermark，假设正常情况下incident都会在24h内修复，我们就可以将Watermark设置为24h。
@@ -615,7 +597,7 @@ case class AlertRegistry () extends LazyLogging {
         val oldValue = registry.getOrElse(key, (false, false))
         val newValue = status match {
           case "OPEN" => (true, oldValue._2)
-          case "CLOSE" => (oldValue._1, true)
+          case "CLOSED" => (oldValue._1, true)
         }
         // 更新map中对应key的值
         registry.update(key, newValue)
@@ -928,3 +910,10 @@ insert into `bdp_metric`.`alert` (`message`, `hostname`, `status`, `timestamp`) 
 'free space warning (mb) for host disk'的括号前面少了一个空格，导致在Redis中根据message取对应AlertIndex的id时，得到的结果为空，然后会用这个空值去取AlertIndex的元数据。  
 
 **解决方法**：在(mb)前面加一个空格。
+
+- ### 接收不到 kafka的数据  
+
+**解决方法**：修改 kafka 配置 server.properties
+```properties
+offsets.topic.replication.factor=1
+```
