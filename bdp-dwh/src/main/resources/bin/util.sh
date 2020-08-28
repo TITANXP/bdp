@@ -9,10 +9,10 @@ do
   BDP_DWH_DEPENDENCY_JARS="$BDP_DWH_JAR_DIR/$JAR,$BDP_DWH_DEPENDENCY_JARS"
 done
 # 添加mysql-connector-java-5.1.27-bin.jar
-for JAR in $(ls ${SPARK_HOME}/lib/mysql*)
-do
-  BDP_DWH_DEPENDENCY_JARS="$JAR,$BDP_DWH_DEPENDENCY_JARS"
-done
+#for JAR in $(ls ${SPARK_HOME}/lib/mysql*)
+#do
+#  BDP_DWH_DEPENDENCY_JARS="$JAR,$BDP_DWH_DEPENDENCY_JARS"
+#done
 export BDP_DWH_DEPENDENCY_JARS=${BDP_DWH_DEPENDENCY_JARS%,}
 
 # -----------------------------------------------    Public Methods   ------------------------------------------------ #
@@ -23,8 +23,9 @@ sparkSql(){
   --deploy-mode client \
   --name "$jobName" \
   --num-executors "${spark.num.executors}" \
-  --executor-cores "${spark.executor.cores}"
-  --executor-memory "${spark.executor.memory}"
+  --executor-cores "${spark.executor.cores}" \
+  --driver-memory 512M \
+  --executor-memory "${spark.executor.memory}" \
   --conf spark.sql.warehouse.dir=${app.hdfs.user.home}/spark-warehouse \
   --conf spark.sql.crossJoin.enable=true \
   --conf spark.sql.shuffle.partitions=8 \
