@@ -11,6 +11,9 @@ BDP_COLLECT_MAIN_CLASS="${app.mainClass}"
 
 showUsage() {
     printHeading "BDP-COLLECT USAGE"
+    echo "# 创建Kafka topics"
+    echo "$0 create-topics"
+    echo
     echo "# 启动程序"
     echo "$0 start"
     echo
@@ -70,9 +73,16 @@ tailLog() {
     tail -F ${app.log.home}/${project.artifactId}.log
 }
 
+createKafkaTopics() {
+  source ${BDP_COLLECT_HOME}/bin/create-kafka-topic.sh
+}
+
 # -----------------------------------------------   main   -------------------------------------------- #
 
 case $1 in
+    (create-topics)
+      createKafkaTopics
+    ;;
     (start)
         start
     ;;
